@@ -7,7 +7,7 @@ abstract contract AdminControl {
     event ChangeAdmin(address indexed _old, address indexed _new);
     event ApplyAdmin(address indexed _old, address indexed _new);
 
-    constructor(address _admin) {
+    function initAdminControl(address _admin) public {
         require(_admin != address(0), "AdminControl: address(0)");
         admin = _admin;
         emit ChangeAdmin(address(0), _admin);

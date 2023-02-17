@@ -22,12 +22,13 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp {
     mapping(uint256 => uint8) public decimals;
     uint256 public swapoutSeq;
 
-    constructor(
+    function initERC20Gateway(
         address anyCallProxy,
         address token_,
         address admin
-    ) AnyCallApp(anyCallProxy, admin) {
+    ) public {
         token = token_;
+        initAnyCallApp(anyCallProxy, admin);
     }
 
     function _swapout(uint256 amount, address sender)
@@ -93,7 +94,6 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp {
         bytes memory data = abi.encode(
             amount,
             IDecimal(token).decimals(),
-            msg.sender,
             receiver,
             swapoutSeq
         );
@@ -113,9 +113,9 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp {
         override
         returns (bool success, bytes memory result)
     {
-        (uint256 amount, uint8 _decimals, , address receiver, ) = abi.decode(
+        (uint256 amount, uint8 _decimals, address receiver, ) = abi.decode(
             data,
-            (uint256, uint8, address, address, uint256)
+            (uint256, uint8, address, uint256)
         );
         amount = convertDecimal(amount, _decimals);
         success = _swapin(amount, receiver);

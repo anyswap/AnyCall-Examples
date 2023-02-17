@@ -17,7 +17,7 @@ module.exports = {
   networks: {
     hardhat: {
     },
-    bsctestnet: {
+    bscTestnet: {
       url: process.env.BSCTESTNET_RPC_PROVIDER,
       accounts: [process.env.PRIVATE_KEY]
     },

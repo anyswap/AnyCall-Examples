@@ -9,14 +9,12 @@ interface ITransfer {
         address recipient,
         uint256 amount
     ) external returns (bool);
+
+    function approve(address spender, uint256 amount) external returns (bool);
 }
 
 contract ERC20Gateway_Pool is ERC20Gateway {
-    constructor(
-        address anyCallProxy,
-        address token,
-        address admin
-    ) ERC20Gateway(anyCallProxy, token, admin) {}
+    constructor() {}
 
     function description() external pure returns (string memory) {
         return "ERC20Gateway_Pool";
@@ -35,6 +33,7 @@ contract ERC20Gateway_Pool is ERC20Gateway {
         override
         returns (bool)
     {
+        ITransfer(token).approve(address(this), amount);
         return ITransfer(token).transferFrom(address(this), receiver, amount);
     }
 }
