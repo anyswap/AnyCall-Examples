@@ -10,11 +10,7 @@ interface IMintBurn {
 }
 
 contract ERC20Gateway_MintBurn is ERC20Gateway {
-    constructor(
-        address anyCallProxy,
-        address token,
-        address admin
-    ) ERC20Gateway(anyCallProxy, token, admin) {}
+    constructor() {}
 
     function description() external pure returns (string memory) {
         return "ERC20Gateway_MintBurn";

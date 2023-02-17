@@ -5,18 +5,37 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract BridgeERC20 is ERC20, AccessControl {
+    string private _name;
+    string private _symbol;
     uint8 _decimals;
 
-    constructor(
+    constructor() ERC20("", "") {}
+
+    function initERC20(
         string memory name_,
         string memory symbol_,
         uint8 decimals_,
         address admin
-    ) ERC20(name_, symbol_) {
+    ) public {
+        _name = name_;
+        _symbol = symbol_;
         _decimals = decimals_;
         _setRoleAdmin(ROLE_MINTER, DEFAULT_ADMIN_ROLE);
         _setRoleAdmin(ROLE_BURNER, DEFAULT_ADMIN_ROLE);
         _setupRole(DEFAULT_ADMIN_ROLE, admin);
+    }
+
+    function transferAdmin(address to) public {
+        _setupRole(DEFAULT_ADMIN_ROLE, to);
+        renounceRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    }
+
+    function name() public view virtual override returns (string memory) {
+        return _name;
+    }
+
+    function symbol() public view virtual override returns (string memory) {
+        return _symbol;
     }
 
     bytes32 ROLE_MINTER = keccak256("role_minter");
