@@ -1,0 +1,9 @@
+[
+  "event ApplyAdmin(address indexed _old, address indexed _new)",
+  "event ChangeAdmin(address indexed _old, address indexed _new)",
+  "function admin() view returns (address)",
+  "function applyAdmin()",
+  "function changeAdmin(address _admin)",
+  "function initAdminControl(address _admin)",
+  "function pendingAdmin() view returns (address)"
+]

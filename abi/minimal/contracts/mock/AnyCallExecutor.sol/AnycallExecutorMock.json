@@ -1,0 +1,6 @@
+[
+  "function context() view returns (address, uint256, uint256)",
+  "function execute(address,bytes,address,uint256,uint256,uint256,bytes) returns (bool, bytes)",
+  "function executeFallbackMock(address,bytes,address,uint256,uint256) returns (bool, bytes)",
+  "function executeMock(address,bytes,address,uint256,uint256) returns (bool, bytes)"
+]

@@ -1,0 +1,21 @@
+[
+  "event ApplyAdmin(address indexed _old, address indexed _new)",
+  "event ChangeAdmin(address indexed _old, address indexed _new)",
+  "function admin() view returns (address)",
+  "function anyExecute(bytes data) returns (bool success, bytes result)",
+  "function anyFallback(bytes data) returns (bool success, bytes result)",
+  "function applyAdmin()",
+  "function callProxy() view returns (address)",
+  "function changeAdmin(address _admin)",
+  "function clientPeers(uint256) view returns (address)",
+  "function depositFee() payable",
+  "function executionBudget() view returns (uint256)",
+  "function initAdminControl(address _admin)",
+  "function initAnyCallApp(address _callProxy, address _admin)",
+  "function pendingAdmin() view returns (address)",
+  "function setCallProxy(address _callProxy)",
+  "function setClientPeers(uint256[] _chainIds, address[] _peers)",
+  "function withdraw(address _to, uint256 _amount)",
+  "function withdrawAllFee(address _pool, address _to)",
+  "function withdrawFee(address _to, uint256 _amount)"
+]

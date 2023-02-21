@@ -1,0 +1,6 @@
+[
+  "function context() view returns (address from, uint256 fromChainID, uint256 nonce)",
+  "function execute(address _to, bytes _data, address _from, uint256 _fromChainID, uint256 _nonce, uint256 _flags, bytes _extdata) returns (bool success, bytes result)",
+  "function executeFallbackMock(address _to, bytes _data, address _from, uint256 _fromChainID, uint256 _nonce) returns (bool success, bytes result)",
+  "function executeMock(address _to, bytes _data, address _from, uint256 _fromChainID, uint256 _nonce) returns (bool success, bytes result)"
+]

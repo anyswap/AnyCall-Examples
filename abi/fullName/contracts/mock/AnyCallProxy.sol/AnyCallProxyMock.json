@@ -1,0 +1,10 @@
+[
+  "constructor(address executor_)",
+  "event LogAnyCall(address to, bytes data, uint256 toChainID, uint256 flags, bytes extdata)",
+  "function anyCall(address _to, bytes _data, uint256 _toChainID, uint256 _flags, bytes _extdata) payable",
+  "function config() view returns (address)",
+  "function deposit(address _account) payable",
+  "function executionBudget(address _account) view returns (uint256)",
+  "function executor() view returns (address)",
+  "function withdraw(uint256 _amount)"
+]

@@ -2,6 +2,7 @@ require("@nomicfoundation/hardhat-toolbox");
 require('dotenv').config();
 require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-etherscan");
+require('hardhat-abi-exporter');
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -31,5 +32,19 @@ module.exports = {
       eth: process.env.ETHERSCAN_API_KEY,
       bsc: process.env.BSCSCAN_API_KEY
     }
-  }
+  },
+  abiExporter: [
+    {
+      path: './abi/json',
+      format: "json",
+    },
+    {
+      path: './abi/minimal',
+      format: "minimal",
+    },
+    {
+      path: './abi/fullName',
+      format: "fullName",
+    },
+  ]
 };

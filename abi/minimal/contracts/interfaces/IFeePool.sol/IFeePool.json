@@ -1,0 +1,5 @@
+[
+  "function deposit(address) payable",
+  "function executionBudget(address) view returns (uint256)",
+  "function withdraw(uint256)"
+]

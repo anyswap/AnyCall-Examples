@@ -1,0 +1,4 @@
+[
+  "function anyExecute(bytes) returns (bool, bytes)",
+  "function anyFallback(bytes) returns (bool, bytes)"
+]

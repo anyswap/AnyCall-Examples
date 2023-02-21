@@ -1,0 +1,4 @@
+[
+  "function context() view returns (address, uint256, uint256)",
+  "function execute(address,bytes,address,uint256,uint256,uint256,bytes) returns (bool, bytes)"
+]

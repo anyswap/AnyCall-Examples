@@ -1,0 +1,10 @@
+[
+  "constructor(address)",
+  "event LogAnyCall(address,bytes,uint256,uint256,bytes)",
+  "function anyCall(address,bytes,uint256,uint256,bytes) payable",
+  "function config() view returns (address)",
+  "function deposit(address) payable",
+  "function executionBudget(address) view returns (uint256)",
+  "function executor() view returns (address)",
+  "function withdraw(uint256)"
+]

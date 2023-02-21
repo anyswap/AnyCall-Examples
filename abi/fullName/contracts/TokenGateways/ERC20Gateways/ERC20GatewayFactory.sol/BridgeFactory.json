@@ -1,0 +1,21 @@
+[
+  "constructor(address _anyCallProxy, address[] _codeShops)",
+  "event Create(string contractType, address contractAddress)",
+  "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
+  "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
+  "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
+  "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
+  "function createBridgeToken(string name_, string symbol_, uint8 decimals_, address owner, uint256 salt) returns (address)",
+  "function createMintBurnGateway(address token, address owner, uint256 salt) returns (address)",
+  "function createPoolGateway(address token, address owner, uint256 salt) returns (address)",
+  "function createTokenAndMintBurnGateway(string name_, string symbol_, uint8 decimals_, address owner, uint256 salt) returns (address, address)",
+  "function getBridgeTokenAddress(address owner, uint256 salt) view returns (address)",
+  "function getMintBurnGatewayAddress(address owner, uint256 salt) view returns (address)",
+  "function getPoolGatewayAddress(address owner, uint256 salt) view returns (address)",
+  "function getRoleAdmin(bytes32 role) view returns (bytes32)",
+  "function grantRole(bytes32 role, address account)",
+  "function hasRole(bytes32 role, address account) view returns (bool)",
+  "function renounceRole(bytes32 role, address account)",
+  "function revokeRole(bytes32 role, address account)",
+  "function supportsInterface(bytes4 interfaceId) view returns (bool)"
+]

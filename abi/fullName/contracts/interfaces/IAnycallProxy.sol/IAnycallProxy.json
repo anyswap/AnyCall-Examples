@@ -1,0 +1,5 @@
+[
+  "function anyCall(address _to, bytes _data, uint256 _toChainID, uint256 _flags, bytes _extdata) payable",
+  "function config() view returns (address)",
+  "function executor() view returns (address)"
+]
