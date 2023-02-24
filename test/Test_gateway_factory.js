@@ -1,4 +1,5 @@
 const { expect } = require("chai");
+const { keccak256, defaultAbiCoder } = require("ethers/lib/utils");
 
 describe("Test bridge factory", function () {
   it("Test bridge factory", async function () {
@@ -158,5 +159,100 @@ describe("Test bridge factory", function () {
     await expect(
       anycallExecutor.executeMock(poolGateway.address, data, owner.address, hre.network.config.chainId, 0)
     ).to.be.revertedWith('AppBase: wrong context');
+  })
+  it("Test nft bridge", async function () {
+    const [owner, user1] = await ethers.getSigners();
+    console.log("owner " + owner.address);
+    console.log("user1 " + user1.address);
+
+    console.log(`chain id : ${hre.network.config.chainId}`);
+
+    // deploy anycall mock
+    console.log("\ndeploy anycall mock");
+    let AnycallExecutor = await ethers.getContractFactory("AnycallExecutorMock");
+    let anycallExecutor = await AnycallExecutor.deploy();
+    await anycallExecutor.deployed();
+    console.log(`anycallExecutor is deployed at : ${anycallExecutor.address}`);
+    let AnyCallProxy = await ethers.getContractFactory("AnyCallProxyMock");
+    let anyCallProxy = await AnyCallProxy.deploy(anycallExecutor.address);
+    await anyCallProxy.deployed();
+    console.log(`anyCallProxy is deployed at : ${anyCallProxy.address}`);
+
+    // 1. create NFT contract
+    console.log('\n1. create NFT contract');
+    let Test721 = await ethers.getContractFactory("Test721_NFT");
+    let nft = await Test721.deploy();
+    await nft.initERC721("Test NFT", "TT", owner.address);
+    console.log(`nft is deployed at ${nft.address}`);
+
+    // 2. deploy pool gateway
+    console.log('\n2. deploy pool gateway');
+    let ERC721Gateway_Pool = await ethers.getContractFactory("ERC721Gateway_Pool");
+    let poolGateway = await ERC721Gateway_Pool.deploy();
+    await poolGateway.initERC20Gateway(anyCallProxy.address, nft.address, owner.address);
+    console.log(`poolGateway is deployed at ${poolGateway.address}`);
+
+    // 3. deploy mint-burn gateway
+    console.log('\n3. deploy mint-burn gateway');
+    let ERC721Gateway_MintBurn = await ethers.getContractFactory("ERC721Gateway_MintBurn");
+    let mintburnGateway = await ERC721Gateway_MintBurn.deploy();
+    await mintburnGateway.initERC20Gateway(anyCallProxy.address, nft.address, owner.address);
+    console.log(`mintburnGateway is deployed at ${poolGateway.address}`);
+
+    // 4. set NFT, set mint-burn gateway
+    console.log('\n4. set NFT, set mint-burn gateway');
+    await nft.setGateway(mintburnGateway.address);
+    expect(await nft.isGateway(mintburnGateway.address)).to.equal(true);
+    await nft.revokeGateway(mintburnGateway.address);
+    expect(await nft.isGateway(mintburnGateway.address)).to.equal(false);
+    await nft.setGateway(mintburnGateway.address);
+    expect(await nft.isGateway(mintburnGateway.address)).to.equal(true);
+
+    // 5. set peer
+    console.log('\n5. set peer');
+    await mintburnGateway.setClientPeers([hre.network.config.chainId], [poolGateway.address]);
+    await poolGateway.setClientPeers([hre.network.config.chainId], [mintburnGateway.address]);
+
+    // 6. mint nft
+    console.log('\n6. mint nft');
+    await nft.grantRole(keccak256(ethers.utils.toUtf8Bytes('role_minter')), owner.address);
+    await nft.mint(owner.address, 1);
+    await nft.revokeRole(keccak256(ethers.utils.toUtf8Bytes('role_minter')), owner.address);
+    expect(await nft.ownerOf(1)).to.equal(owner.address);
+
+    // 7. bridging
+    console.log('\n7. bridging');
+    await nft.connect(owner).approve(poolGateway.address, 1);
+    let tx1 = await poolGateway.connect(owner).Swapout(1, user1.address, hre.network.config.chainId);
+    let rc1 = await tx1.wait();
+    expect(await nft.ownerOf(1)).to.equal(poolGateway.address);
+
+    await nft.grantRole(keccak256(ethers.utils.toUtf8Bytes('role_burner')), owner.address);
+    await nft.burn(1);
+    await nft.revokeRole(keccak256(ethers.utils.toUtf8Bytes('role_burner')), owner.address);
+
+    let event1 = rc1.events.find(event => event.address === anyCallProxy.address);
+    [_, data1, _, _, _] = ethers.utils.defaultAbiCoder.decode(["address", "bytes", "uint", "uint", "bytes"], event1.data);
+    console.log(`data1 : ${data1}`);
+
+    await anycallExecutor.executeMock(mintburnGateway.address, data1, poolGateway.address, hre.network.config.chainId, 0);
+    expect(await nft.ownerOf(1)).to.equal(user1.address);
+
+    // 8. bridging back
+    console.log('\n8. bridging back');
+    console.log(`owner of 1 : ${await nft.ownerOf(1)}`);
+    let tx2 = await mintburnGateway.connect(user1).Swapout(1, owner.address, hre.network.config.chainId);
+    let rc2 = await tx2.wait();
+
+    await nft.grantRole(keccak256(ethers.utils.toUtf8Bytes('role_minter')), owner.address);
+    await nft.mint(poolGateway.address, 1);
+    await nft.revokeRole(keccak256(ethers.utils.toUtf8Bytes('role_minter')), owner.address);
+
+    let event2 = rc2.events.find(event => event.address === anyCallProxy.address);
+    [_, data2, _, _, _] = ethers.utils.defaultAbiCoder.decode(["address", "bytes", "uint", "uint", "bytes"], event2.data);
+    console.log(`data2 : ${data2}`);
+
+    await anycallExecutor.executeMock(poolGateway.address, data2, mintburnGateway.address, hre.network.config.chainId, 0);
+    expect(await nft.ownerOf(1)).to.equal(owner.address);
   })
 });
