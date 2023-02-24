@@ -22,11 +22,20 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp {
     mapping(uint256 => uint8) public decimals;
     uint256 public swapoutSeq;
 
+    address private _initiator;
+    bool public initialized = false;
+
+    constructor() {
+        _initiator = msg.sender;
+    }
+
     function initERC20Gateway(
         address anyCallProxy,
         address token_,
         address admin
     ) public {
+        require(_initiator == msg.sender && !initialized);
+        initialized = true;
         token = token_;
         initAnyCallApp(anyCallProxy, admin);
     }

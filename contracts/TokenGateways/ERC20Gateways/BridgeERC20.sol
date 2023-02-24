@@ -1,4 +1,3 @@
-// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -9,7 +8,12 @@ contract BridgeERC20 is ERC20, AccessControl {
     string private _symbol;
     uint8 _decimals;
 
-    constructor() ERC20("", "") {}
+    address private _initiator;
+    bool public initialized = false;
+
+    constructor() ERC20("", "") {
+        _initiator = msg.sender;
+    }
 
     function initERC20(
         string memory name_,
@@ -17,6 +21,8 @@ contract BridgeERC20 is ERC20, AccessControl {
         uint8 decimals_,
         address admin
     ) public {
+        require(_initiator == msg.sender && !initialized);
+        initialized = true;
         _name = name_;
         _symbol = symbol_;
         _decimals = decimals_;

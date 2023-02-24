@@ -10,8 +10,6 @@ interface IMintBurn {
 }
 
 contract ERC20Gateway_MintBurn is ERC20Gateway {
-    constructor() {}
-
     function description() external pure returns (string memory) {
         return "ERC20Gateway_MintBurn";
     }

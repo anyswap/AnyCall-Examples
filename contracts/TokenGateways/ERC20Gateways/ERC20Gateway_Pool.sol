@@ -14,8 +14,6 @@ interface ITransfer {
 }
 
 contract ERC20Gateway_Pool is ERC20Gateway {
-    constructor() {}
-
     function description() external pure returns (string memory) {
         return "ERC20Gateway_Pool";
     }

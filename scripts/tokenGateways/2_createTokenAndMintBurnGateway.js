@@ -5,8 +5,8 @@ const hre = require("hardhat");
  */
 
 const factory = {
-    "bscTestnet": "0xf95b8E5ea5cAb6Aea20E90f2D123368349953254",
-    "goerli": "0xEd62F792C54A7e794d156C4cdd4667a3bAe25aDE"
+    "bscTestnet": "0xfB3bcb54ab305B9e8C512ADF6bBaE63f048CFA7F",
+    "goerli": "0xe536b782b6e3F0931F5BF0De2A35474556482965"
 }
 
 const tokenInfo = {
