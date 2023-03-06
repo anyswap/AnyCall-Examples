@@ -25,12 +25,17 @@ module.exports = {
     goerli: {
       url: process.env.GOERLI_RPC_PROVIDER,
       accounts: [process.env.PRIVATE_KEY]
+    },
+    ftmTestnet: {
+      url: process.env.FTMTESTNET_RPC_PROVIDER,
+      accounts: [process.env.PRIVATE_KEY]
     }
   },
   etherscan: {
     apiKey: {
-      eth: process.env.ETHERSCAN_API_KEY,
-      bsc: process.env.BSCSCAN_API_KEY
+      goerli: process.env.ETHERSCAN_API_KEY,
+      bscTestnet: process.env.BSCSCAN_API_KEY,
+      ftmTestnet: process.env.FTMSCAN_API_KEY
     }
   },
   abiExporter: [
