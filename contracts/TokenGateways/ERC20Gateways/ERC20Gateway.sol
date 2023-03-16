@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "../../AnyCallAppBase/AnyCallApp.sol";
+import "./fee/DFaxFee.sol";
 
 interface IDecimal {
     function decimals() external view returns (uint8);
@@ -17,7 +18,7 @@ interface IERC20Gateway {
     ) external payable returns (uint256 swapoutSeq);
 }
 
-abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp {
+abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp, DFaxFee {
     address public token;
     mapping(uint256 => uint8) public decimals;
     uint256 public swapoutSeq;
@@ -25,7 +26,7 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp {
     address private _initiator;
     bool public initialized = false;
 
-    constructor() {
+    constructor() DFaxFee() {
         _initiator = msg.sender;
     }
 
@@ -38,17 +39,18 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp {
         initialized = true;
         token = token_;
         initAnyCallApp(anyCallProxy, admin);
+        _setBridgeOwner(admin);
     }
 
-    function _swapout(uint256 amount, address sender)
-        internal
-        virtual
-        returns (bool);
+    function _swapout(
+        uint256 amount,
+        address sender
+    ) internal virtual returns (bool);
 
-    function _swapin(uint256 amount, address receiver)
-        internal
-        virtual
-        returns (bool);
+    function _swapin(
+        uint256 amount,
+        address receiver
+    ) internal virtual returns (bool);
 
     event LogAnySwapOut(
         uint256 amount,
@@ -58,10 +60,10 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp {
         uint256 swapoutSeq
     );
 
-    function setDecimals(uint256[] memory chainIDs, uint8[] memory decimals_)
-        external
-        onlyAdmin
-    {
+    function setDecimals(
+        uint256[] memory chainIDs,
+        uint8[] memory decimals_
+    ) external onlyAdmin {
         for (uint256 i = 0; i < chainIDs.length; i++) {
             decimals[chainIDs[i]] = decimals_[i];
         }
@@ -75,11 +77,10 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp {
         );
     }
 
-    function convertDecimal(uint256 amount, uint8 d_0)
-        public
-        view
-        returns (uint256)
-    {
+    function convertDecimal(
+        uint256 amount,
+        uint8 d_0
+    ) public view returns (uint256) {
         uint8 d_1 = IDecimal(token).decimals();
         if (d_0 > d_1) {
             for (uint8 i = 0; i < (d_0 - d_1); i++) {
@@ -97,7 +98,12 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp {
         uint256 amount,
         address receiver,
         uint256 destChainID
-    ) external payable returns (uint256) {
+    )
+        external
+        payable
+        chargeFee(msg.sender, destChainID, amount)
+        returns (uint256)
+    {
         require(_swapout(amount, msg.sender));
         swapoutSeq++;
         bytes memory data = abi.encode(
@@ -106,7 +112,8 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp {
             receiver,
             swapoutSeq
         );
-        _anyCall(clientPeers[destChainID], data, destChainID);
+        uint256 anyCallFee = msg.value - dFexCharged;
+        _anyCall(clientPeers[destChainID], data, destChainID, anyCallFee);
         emit LogAnySwapOut(
             amount,
             msg.sender,
@@ -117,11 +124,10 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp {
         return swapoutSeq;
     }
 
-    function _anyExecute(uint256 fromChainID, bytes memory data)
-        internal
-        override
-        returns (bool success, bytes memory result)
-    {
+    function _anyExecute(
+        uint256 fromChainID,
+        bytes memory data
+    ) internal override returns (bool success, bytes memory result) {
         (uint256 amount, uint8 _decimals, address receiver, ) = abi.decode(
             data,
             (uint256, uint8, address, uint256)
@@ -130,11 +136,10 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp {
         success = _swapin(amount, receiver);
     }
 
-    function _anyFallback(uint256 fromChainID, bytes memory data)
-        internal
-        override
-        returns (bool success, bytes memory result)
-    {
+    function _anyFallback(
+        uint256 fromChainID,
+        bytes memory data
+    ) internal override returns (bool success, bytes memory result) {
         (uint256 amount, , address originSender, , ) = abi.decode(
             data,
             (uint256, uint8, address, address, uint256)

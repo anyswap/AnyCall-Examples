@@ -79,26 +79,27 @@ abstract contract AnyCallApp is AdminControl {
     }
 
     /// @dev Customized logic for processing incoming messages
-    function _anyExecute(uint256 fromChainID, bytes memory data)
-        internal
-        virtual
-        returns (bool success, bytes memory result);
+    function _anyExecute(
+        uint256 fromChainID,
+        bytes memory data
+    ) internal virtual returns (bool success, bytes memory result);
 
     /// @dev Customized logic for processing fallback messages
-    function _anyFallback(uint256 fromChainID, bytes memory data)
-        internal
-        virtual
-        returns (bool success, bytes memory result);
+    function _anyFallback(
+        uint256 fromChainID,
+        bytes memory data
+    ) internal virtual returns (bool success, bytes memory result);
 
     /// @dev Send anyCall
     function _anyCall(
         address _to,
         bytes memory _data,
-        uint256 _toChainID
+        uint256 _toChainID,
+        uint256 fee
     ) internal {
         // reserve 10 percent for fallback
-        uint256 fee1 = msg.value / 10;
-        uint256 fee2 = msg.value - fee1;
+        uint256 fee1 = fee / 10;
+        uint256 fee2 = fee - fee1;
         address _pool = IAnycallProxy(callProxy).config();
         IFeePool(_pool).deposit{value: fee1}(address(this));
         IAnycallProxy(callProxy).anyCall{value: fee2}(
@@ -110,11 +111,9 @@ abstract contract AnyCallApp is AdminControl {
         );
     }
 
-    function anyExecute(bytes memory data)
-        external
-        onlyExecutor
-        returns (bool success, bytes memory result)
-    {
+    function anyExecute(
+        bytes memory data
+    ) external onlyExecutor returns (bool success, bytes memory result) {
         (address from, uint256 fromChainID, ) = IAnycallExecutor(
             IAnycallProxy(callProxy).executor()
         ).context();
@@ -122,11 +121,9 @@ abstract contract AnyCallApp is AdminControl {
         return _anyExecute(fromChainID, data);
     }
 
-    function anyFallback(bytes calldata data)
-        external
-        onlyExecutor
-        returns (bool success, bytes memory result)
-    {
+    function anyFallback(
+        bytes calldata data
+    ) external onlyExecutor returns (bool success, bytes memory result) {
         (address from, uint256 fromChainID, ) = IAnycallExecutor(
             IAnycallProxy(callProxy).executor()
         ).context();

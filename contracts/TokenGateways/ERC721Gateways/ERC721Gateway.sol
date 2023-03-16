@@ -35,10 +35,9 @@ abstract contract ERC721Gateway is IERC721Gateway, AnyCallApp {
         initAnyCallApp(anyCallProxy, admin);
     }
 
-    function _swapout(uint256 tokenId)
-        internal
-        virtual
-        returns (bool, bytes memory);
+    function _swapout(
+        uint256 tokenId
+    ) internal virtual returns (bool, bytes memory);
 
     function _swapin(
         uint256 tokenId,
@@ -69,7 +68,7 @@ abstract contract ERC721Gateway is IERC721Gateway, AnyCallApp {
             swapoutSeq,
             extraMsg
         );
-        _anyCall(clientPeers[destChainID], data, destChainID);
+        _anyCall(clientPeers[destChainID], data, destChainID, msg.value);
         emit LogAnySwapOut(
             tokenId,
             msg.sender,
@@ -89,21 +88,19 @@ abstract contract ERC721Gateway is IERC721Gateway, AnyCallApp {
         return this.Swapout(tokenId, receiver, toChainID);
     }
 
-    function _anyExecute(uint256 fromChainID, bytes memory data)
-        internal
-        override
-        returns (bool success, bytes memory result)
-    {
+    function _anyExecute(
+        uint256 fromChainID,
+        bytes memory data
+    ) internal override returns (bool success, bytes memory result) {
         (uint256 tokenId, , address receiver, , bytes memory extraMsg) = abi
             .decode(data, (uint256, address, address, uint256, bytes));
         success = _swapin(tokenId, receiver, extraMsg);
     }
 
-    function _anyFallback(uint256 fromChainID, bytes memory data)
-        internal
-        override
-        returns (bool success, bytes memory result)
-    {
+    function _anyFallback(
+        uint256 fromChainID,
+        bytes memory data
+    ) internal override returns (bool success, bytes memory result) {
         (uint256 tokenId, address originSender, , , bytes memory extraMsg) = abi
             .decode(data, (uint256, address, address, uint256, bytes));
         success = _swapin(tokenId, originSender, extraMsg);
