@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 import "./BridgeERC20.sol";
 import "./ERC20Gateway_MintBurn.sol";
 import "./ERC20Gateway_Pool.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
 
 interface ICodeShop {
     function getCode() external view virtual returns (bytes memory);
@@ -28,9 +27,11 @@ contract CodeShop_PoolGateway is ICodeShop {
     }
 }
 
-contract BridgeFactory is AccessControl {
+contract BridgeFactory {
     address anyCallProxy;
     ICodeShop[3] codeShops;
+    address dFaxFeeAdmin;
+    address defaultFeeScheme;
 
     /// @param _codeShops is sort list of CodeShop addresses : `[CS_BridgeToken, CS_MintBurnGateway, CS_PoolGateway]`
     constructor(address _anyCallProxy, address[] memory _codeShops) {
@@ -42,11 +43,10 @@ contract BridgeFactory is AccessControl {
 
     event Create(string contractType, address contractAddress);
 
-    function getBridgeTokenAddress(address owner, uint256 salt)
-        public
-        view
-        returns (address)
-    {
+    function getBridgeTokenAddress(
+        address owner,
+        uint256 salt
+    ) public view returns (address) {
         bytes memory bytecode = codeShops[0].getCode();
         salt = uint256(keccak256(abi.encodePacked(owner, salt)));
         bytes32 hash = keccak256(
@@ -60,11 +60,10 @@ contract BridgeFactory is AccessControl {
         return address(uint160(uint256(hash)));
     }
 
-    function getPoolGatewayAddress(address owner, uint256 salt)
-        public
-        view
-        returns (address)
-    {
+    function getPoolGatewayAddress(
+        address owner,
+        uint256 salt
+    ) public view returns (address) {
         bytes memory bytecode = codeShops[2].getCode();
         salt = uint256(keccak256(abi.encodePacked(owner, salt)));
         bytes32 hash = keccak256(
@@ -78,11 +77,10 @@ contract BridgeFactory is AccessControl {
         return address(uint160(uint256(hash)));
     }
 
-    function getMintBurnGatewayAddress(address owner, uint256 salt)
-        public
-        view
-        returns (address)
-    {
+    function getMintBurnGatewayAddress(
+        address owner,
+        uint256 salt
+    ) public view returns (address) {
         bytes memory bytecode = codeShops[1].getCode();
         salt = uint256(keccak256(abi.encodePacked(owner, salt)));
         bytes32 hash = keccak256(
@@ -146,7 +144,13 @@ contract BridgeFactory is AccessControl {
             }
         }
         emit Create("ERC20 pool gateway", addr);
-        ERC20Gateway(addr).initERC20Gateway(anyCallProxy, token, owner);
+        ERC20Gateway(addr).initERC20Gateway(
+            anyCallProxy,
+            token,
+            owner,
+            dFaxFeeAdmin,
+            defaultFeeScheme
+        );
         return addr;
     }
 
@@ -166,7 +170,13 @@ contract BridgeFactory is AccessControl {
             }
         }
         emit Create("ERC20 mint-burn gateway", addr);
-        ERC20Gateway(addr).initERC20Gateway(anyCallProxy, token, owner);
+        ERC20Gateway(addr).initERC20Gateway(
+            anyCallProxy,
+            token,
+            owner,
+            dFaxFeeAdmin,
+            defaultFeeScheme
+        );
         return addr;
     }
 

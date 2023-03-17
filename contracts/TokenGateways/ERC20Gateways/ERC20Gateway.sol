@@ -33,13 +33,15 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp, DFaxFee {
     function initERC20Gateway(
         address anyCallProxy,
         address token_,
-        address admin
+        address admin,
+        address dFaxFeeAdmin,
+        address defaultFeeScheme
     ) public {
         require(_initiator == msg.sender && !initialized);
         initialized = true;
         token = token_;
         initAnyCallApp(anyCallProxy, admin);
-        _setBridgeOwner(admin);
+        initDFaxFee(admin, dFaxFeeAdmin, defaultFeeScheme);
     }
 
     function _swapout(
@@ -112,7 +114,7 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp, DFaxFee {
             receiver,
             swapoutSeq
         );
-        uint256 anyCallFee = msg.value - dFexCharged;
+        uint256 anyCallFee = msg.value - dFeeCharged;
         _anyCall(clientPeers[destChainID], data, destChainID, anyCallFee);
         emit LogAnySwapOut(
             amount,

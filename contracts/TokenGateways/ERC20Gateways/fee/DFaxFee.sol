@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import "./IFeeHandler.sol";
+import "./IFeeScheme.sol";
 
 contract DFaxFee {
     address public dfaxFeeAdmin;
@@ -11,14 +11,53 @@ contract DFaxFee {
     uint256[] public feeOwnerAccrued;
     uint256[] public feeOwnerWeights;
 
-    IFeeHandler public feeHandler;
+    IFeeScheme public feeScheme;
 
-    uint256 internal dFexCharged;
+    uint256 internal dFeeCharged;
+
+    bytes4 public constant SELECTOR_SETDFAXFEEADMIN =
+        bytes4(keccak256("setDFaxFeeAdmin(address)"));
+    bytes4 public constant SELECTOR_ADDFEEOWNER =
+        bytes4(keccak256("addFeeOwner(address,uint256)"));
+    bytes4 public constant SELECTOR_UPDATEFEEOWNER =
+        bytes4(keccak256("updateFeeOwnerF(address,uint256)"));
+    bytes4 public constant SELECTOR_REMOVEFEEOWNER =
+        bytes4(keccak256("removeFeeOwner(address)"));
+    bytes4 public constant SELECTOR_SETFEESCHEME =
+        bytes4(keccak256("setFeeScheme(address)"));
 
     constructor() {}
 
+    function initDFaxFee(
+        address _bridgeOwner,
+        address _dFaxFeeAdmin,
+        address defaultFeeScheme
+    ) internal {
+        _setBridgeOwner(_bridgeOwner);
+        _setDFaxFeeAdmin(_dFaxFeeAdmin);
+        _setFeeScheme(defaultFeeScheme);
+    }
+
+    function setDFaxFeeAdminWithPermit(
+        address dfaxFeeAdmin,
+        Permit memory permit
+    ) public {
+        bytes32 hash = keccak256(
+            abi.encodeWithSelector(SELECTOR_SETDFAXFEEADMIN, dfaxFeeAdmin)
+        );
+        require(
+            permit.deadline >= block.timestamp,
+            "bridgeOwner permit expired"
+        );
+        require(
+            ecrecover(hash, permit.v, permit.r, permit.s) == bridgeOwner,
+            "verify bridgeOwner signature failed"
+        );
+        _setDFaxFeeAdmin(dfaxFeeAdmin);
+    }
+
     function setDFaxFeeAdmin(address _dfaxFeeAdmin) public {
-        require(msg.sender == dfaxFeeAdmin);
+        require(msg.sender == dfaxFeeAdmin || msg.sender == bridgeOwner);
         _setDFaxFeeAdmin(_dfaxFeeAdmin);
     }
 
@@ -63,15 +102,6 @@ contract DFaxFee {
             "verify dfaxFeeAdmin signature failed"
         );
     }
-
-    bytes4 public constant SELECTOR_ADDFEEOWNER =
-        bytes4(keccak256("addFeeOwner(address,uint256)"));
-    bytes4 public constant SELECTOR_UPDATEFEEOWNER =
-        bytes4(keccak256("updateFeeOwnerF(address,uint256)"));
-    bytes4 public constant SELECTOR_REMOVEFEEOWNER =
-        bytes4(keccak256("removeFeeOwner(address)"));
-    bytes4 public constant SELECTOR_SETFEEHANDLER =
-        bytes4(keccak256("someFunc(address,uint256)"));
 
     function addFeeOwnerWithPermit(
         address feeOwner,
@@ -145,19 +175,19 @@ contract DFaxFee {
         _updateFeeOwner(feeOwner, 0);
     }
 
-    function setFeeHandlerWithPermit(
-        address feeHandler,
+    function setFeeSchemeWithPermit(
+        address feeScheme,
         Permit[] memory permits
     ) public {
         bytes32 hash = keccak256(
-            abi.encodeWithSelector(SELECTOR_SETFEEHANDLER, feeHandler)
+            abi.encodeWithSelector(SELECTOR_SETFEESCHEME, feeScheme)
         );
         verifyPermits(hash, permits);
-        _setFeeHandler(feeHandler);
+        _setFeeScheme(feeScheme);
     }
 
-    function _setFeeHandler(address _feeHandler) internal {
-        feeHandler = IFeeHandler(_feeHandler);
+    function _setFeeScheme(address _feeScheme) internal {
+        feeScheme = IFeeScheme(_feeScheme);
     }
 
     modifier chargeFee(
@@ -179,9 +209,9 @@ contract DFaxFee {
                 totalWeight;
         }
 
-        dFexCharged = fee;
+        dFeeCharged = fee;
         _;
-        dFexCharged = 0;
+        dFeeCharged = 0;
     }
 
     function withdrawDFaxFee(address to, uint256 amount) public {
@@ -202,6 +232,6 @@ contract DFaxFee {
         uint256 toChainID,
         uint256 amount
     ) public view returns (uint256) {
-        return feeHandler.calcFee(sender, toChainID, amount);
+        return feeScheme.calcFee(sender, toChainID, amount);
     }
 }
