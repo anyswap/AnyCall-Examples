@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "./BridgeERC20.sol";
 import "./ERC20Gateway_MintBurn.sol";
 import "./ERC20Gateway_Pool.sol";
+import "../../AnyCallAppBase/AdminControl.sol";
 
 interface ICodeShop {
     function getCode() external view virtual returns (bytes memory);
@@ -27,11 +28,11 @@ contract CodeShop_PoolGateway is ICodeShop {
     }
 }
 
-contract BridgeFactory {
+contract BridgeFactory is AdminControl {
     address anyCallProxy;
     ICodeShop[3] codeShops;
-    address dFaxFeeAdmin;
-    address defaultFeeScheme;
+    address public dFaxFeeAdmin;
+    address public defaultFeeScheme;
 
     /// @param _codeShops is sort list of CodeShop addresses : `[CS_BridgeToken, CS_MintBurnGateway, CS_PoolGateway]`
     constructor(address _anyCallProxy, address[] memory _codeShops) {
@@ -39,9 +40,18 @@ contract BridgeFactory {
         for (uint256 i = 0; i < _codeShops.length; i++) {
             codeShops[i] = ICodeShop(_codeShops[i]);
         }
+        initAdminControl(msg.sender);
     }
 
     event Create(string contractType, address contractAddress);
+
+    function setDFaxFeeAdmin(address _dFaxFeeAdmin) public onlyAdmin {
+        dFaxFeeAdmin = _dFaxFeeAdmin;
+    }
+
+    function setDefaultFeeScheme(address _defaultFeeScheme) public onlyAdmin {
+        defaultFeeScheme = _defaultFeeScheme;
+    }
 
     function getBridgeTokenAddress(
         address owner,
