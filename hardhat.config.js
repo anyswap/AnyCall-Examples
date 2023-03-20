@@ -29,6 +29,10 @@ module.exports = {
     ftmTestnet: {
       url: process.env.FTMTESTNET_RPC_PROVIDER,
       accounts: [process.env.PRIVATE_KEY]
+    },
+    fuji: {
+      url: process.env.AVAXTESTNET_RPC_PROVIDER,
+      accounts: [process.env.PRIVATE_KEY]
     }
   },
   etherscan: {

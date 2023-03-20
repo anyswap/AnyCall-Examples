@@ -7,9 +7,10 @@ const hre = require("hardhat");
 const token = "";
 
 const factory = {
-    "bscTestnet": "0xB6E4041A7bC74f48C42FF2AEF6D7D961DDAC9551",
-    "goerli": "0xB6E4041A7bC74f48C42FF2AEF6D7D961DDAC9551",
-    "ftmTestnet": "0xB6E4041A7bC74f48C42FF2AEF6D7D961DDAC9551"
+    "bscTestnet": "0xB071D067dc09a0550786c69080919dCc24704Efd",
+    "goerli": "0xB071D067dc09a0550786c69080919dCc24704Efd",
+    "ftmTestnet": "0xB071D067dc09a0550786c69080919dCc24704Efd",
+    "fuji": "0xB071D067dc09a0550786c69080919dCc24704Efd"
 }
 
 const salt = 1;

@@ -2,17 +2,22 @@ const hre = require("hardhat");
 
 const gatewayNetwork = {
     "bscTestnet": {
-        "token": "0x18D9EB4cFD92F2fA08071eD3213f41E59bb97a81",
-        "gateway": "0x94AD484C50402AE81Dd7CF9FE4905731afB7B159"
+        "token": "0x8C68ad9e912cE8E86D7c95DBAc90E4c79d8c017E",
+        "gateway": "0xe2927dbabfdDeAB984CF2dd1ce14346E5c590F14"
     },
     "goerli": {
-        "token": "0x0608fe957B955B608FeA8A8d6F8ac8b871926B0E",
-        "gateway": "0x5b5341210fe20774c3f24a418de1Feb7d0b9Af9b"
+        "token": "0x8C68ad9e912cE8E86D7c95DBAc90E4c79d8c017E",
+        "gateway": "0xC839DDd78F4E31227fF3FeebBcdBDd08f59727c4"
+    },
+    "ftmTestnet": {
+        "token": "0x8C68ad9e912cE8E86D7c95DBAc90E4c79d8c017E",
+        "gateway": "0xe2927dbabfdDeAB984CF2dd1ce14346E5c590F14"
     }
 }
 
 const chainids = {
     "bscTestnet": 97,
+    "ftmTestnet": 4002,
     "goerli": 5
 }
 

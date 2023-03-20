@@ -3,7 +3,8 @@ const hre = require("hardhat");
 const AnyCallProxy = {
     "bscTestnet": "0xcBd52F7E99eeFd9cD281Ea84f3D903906BB677EC",
     "goerli": "0x965f84D915a9eFa2dD81b653e3AE736555d945f4",
-    "ftmTestnet": "0xfCea2c562844A7D385a7CB7d5a79cfEE0B673D99"
+    "ftmTestnet": "0xfCea2c562844A7D385a7CB7d5a79cfEE0B673D99",
+    "fuji": "0x461d52769884ca6235b685ef2040f47d30c94eb5"
 }
 
 async function main() {
