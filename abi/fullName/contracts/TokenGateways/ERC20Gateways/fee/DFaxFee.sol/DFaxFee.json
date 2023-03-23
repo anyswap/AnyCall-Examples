@@ -1,0 +1,18 @@
+[
+  "constructor()",
+  "function _updateFeeOwner(address feeOwner, uint256 weight)",
+  "function addFeeOwner(address feeOwner, uint256 weight)",
+  "function calcFee(address sender, uint256 toChainID, uint256 amount) view returns (uint256)",
+  "function dfaxFeeAdmin() view returns (address)",
+  "function feeOwnerAccrued(uint256) view returns (uint256)",
+  "function feeOwnerWeights(uint256) view returns (uint256)",
+  "function feeOwners(uint256) view returns (address)",
+  "function feeScheme() view returns (address)",
+  "function getFeeOwnerWeight(address feeOwner) view returns (uint256)",
+  "function getTotalWeight() view returns (uint256)",
+  "function removeFeeOwner(address feeOwner)",
+  "function setDFaxFeeAdmin(address dfaxFeeAdmin)",
+  "function setFeeScheme(address feeScheme)",
+  "function updateFeeOwner(address feeOwner, uint256 weight)",
+  "function withdrawDFaxFee(address to, uint256 amount)"
+]

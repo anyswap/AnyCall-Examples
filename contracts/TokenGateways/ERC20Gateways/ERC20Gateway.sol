@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "../../AnyCallAppBase/AnyCallApp.sol";
 import "./ISwapInSafetyControl.sol";
+import "./fee/DFaxFee.sol";
 
 interface IDecimal {
     function decimals() external view returns (uint8);
@@ -18,7 +19,7 @@ interface IERC20Gateway {
     ) external payable returns (uint256 swapoutSeq);
 }
 
-abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp {
+abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp, DFaxFee {
     address public token;
     mapping(uint256 => uint8) public decimals;
     uint256 public swapoutSeq;
@@ -28,7 +29,7 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp {
 
     ISwapInSafetyControl public safetyControl;
 
-    constructor() {
+    constructor() DFaxFee() {
         _initiator = msg.sender;
     }
 
@@ -36,13 +37,16 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp {
         address anyCallProxy,
         address token_,
         address admin,
-        address _safetyControl
+        address _safetyControl,
+        address dFaxFeeAdmin,
+        address defaultFeeScheme
     ) public {
         require(_initiator == msg.sender && !initialized);
         initialized = true;
         token = token_;
         initAnyCallApp(anyCallProxy, admin);
         safetyControl = ISwapInSafetyControl(_safetyControl);
+        initDFaxFee(dFaxFeeAdmin, defaultFeeScheme);
     }
 
     function _swapout(
@@ -110,7 +114,9 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp {
             receiver,
             swapoutSeq
         );
-        _anyCall(clientPeers[destChainID], data, destChainID);
+        uint256 dFeeCharged = chargeFee(msg.sender, destChainID, amount);
+        uint256 anyCallFee = msg.value - dFeeCharged;
+        _anyCall(clientPeers[destChainID], data, destChainID, anyCallFee);
         emit LogAnySwapOut(
             amount,
             msg.sender,

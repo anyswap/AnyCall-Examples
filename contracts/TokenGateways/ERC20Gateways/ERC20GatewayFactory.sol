@@ -38,6 +38,7 @@ contract CodeShop_DefaultSafetyControl is ICodeShop {
 contract BridgeFactory is AccessControl {
     address anyCallProxy;
     ICodeShop[4] codeShops;
+    address public dfaxFeeAdmin;
 
     /// @param _codeShops is sort list of CodeShop addresses : `[CS_BridgeToken, CS_MintBurnGateway, CS_PoolGateway, CodeShop_DefaultSafetyControl]`
     constructor(address _anyCallProxy, address[] memory _codeShops) {
@@ -176,7 +177,9 @@ contract BridgeFactory is AccessControl {
             anyCallProxy,
             token,
             owner,
-            safetyControlAddr
+            safetyControlAddr,
+            dfaxFeeAdmin,
+            address(0)
         );
         DefaultSwapInSafetyControl(safetyControlAddr).initDefaultSafetyControls(
             owner,
@@ -229,9 +232,10 @@ contract BridgeFactory is AccessControl {
             anyCallProxy,
             token,
             owner,
-            safetyControlAddr
+            safetyControlAddr,
+            dfaxFeeAdmin,
+            address(0)
         );
-
         DefaultSwapInSafetyControl(safetyControlAddr).initDefaultSafetyControls(
             owner,
             gatewayAddr,

@@ -1,0 +1,12 @@
+[
+  "constructor(uint256 _defaultRate, tuple(uint256 toChainID, uint256 rate, uint256 max, uint256 min)[] rates)",
+  "function calcFee(address sender, uint256 toChainID, uint256 amount) view returns (uint256)",
+  "function defaultRate() view returns (uint256)",
+  "function denominator() view returns (uint256)",
+  "function isMaxSet(uint256) view returns (bool)",
+  "function isMinSet(uint256) view returns (bool)",
+  "function isRateSet(uint256) view returns (bool)",
+  "function max(uint256) view returns (uint256)",
+  "function min(uint256) view returns (uint256)",
+  "function rate(uint256) view returns (uint256)"
+]

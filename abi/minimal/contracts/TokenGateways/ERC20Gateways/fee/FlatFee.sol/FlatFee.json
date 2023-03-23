@@ -1,0 +1,7 @@
+[
+  "constructor(uint256,tuple(uint256,uint256)[])",
+  "function calcFee(address,uint256,uint256) view returns (uint256)",
+  "function defaultPrice() view returns (uint256)",
+  "function isPriceSet(uint256) view returns (bool)",
+  "function price(uint256) view returns (uint256)"
+]

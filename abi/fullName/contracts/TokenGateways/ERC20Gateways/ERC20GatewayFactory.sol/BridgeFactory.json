@@ -9,6 +9,7 @@
   "function createMintBurnGateway(address token, address owner, uint256 salt) returns (address)",
   "function createPoolGateway(address token, address owner, uint256 salt) returns (address)",
   "function createTokenAndMintBurnGateway(string name_, string symbol_, uint8 decimals_, address owner, uint256 salt) returns (address, address)",
+  "function dfaxFeeAdmin() view returns (address)",
   "function getBridgeTokenAddress(address owner, uint256 salt) view returns (address)",
   "function getMintBurnGatewayAddress(address owner, uint256 salt) view returns (address)",
   "function getPoolGatewayAddress(address owner, uint256 salt) view returns (address)",
