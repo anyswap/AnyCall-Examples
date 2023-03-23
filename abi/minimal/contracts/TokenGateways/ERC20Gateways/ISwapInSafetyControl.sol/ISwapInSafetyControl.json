@@ -1,0 +1,5 @@
+[
+  "function changeAdmin(address)",
+  "function checkSwapIn(uint256,address) view returns (bool)",
+  "function update(uint256,address)"
+]

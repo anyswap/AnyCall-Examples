@@ -10,7 +10,6 @@
   "function clientPeers(uint256) view returns (address)",
   "function depositFee() payable",
   "function executionBudget() view returns (uint256)",
-  "function initAdminControl(address _admin)",
   "function initAnyCallApp(address _callProxy, address _admin)",
   "function pendingAdmin() view returns (address)",
   "function setCallProxy(address _callProxy)",

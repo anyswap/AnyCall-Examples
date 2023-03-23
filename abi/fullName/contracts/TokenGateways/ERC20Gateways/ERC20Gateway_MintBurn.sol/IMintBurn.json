@@ -1,4 +1,5 @@
 [
+  "function balanceOf(address account) returns (uint256)",
   "function burn(address account, uint256 amount)",
   "function mint(address account, uint256 amount)"
 ]

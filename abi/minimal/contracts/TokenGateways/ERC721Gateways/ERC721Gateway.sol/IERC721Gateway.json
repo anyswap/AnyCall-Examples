@@ -1,0 +1,4 @@
+[
+  "function Swapout(uint256,address,uint256) payable returns (uint256)",
+  "function token() view returns (address)"
+]

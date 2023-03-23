@@ -1,0 +1,4 @@
+[
+  "function burn(uint256 tokenId)",
+  "function mint(address account, uint256 tokenId)"
+]

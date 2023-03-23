@@ -17,6 +17,7 @@
   "function hasRole(bytes32,address) view returns (bool)",
   "function increaseAllowance(address,uint256) returns (bool)",
   "function initERC20(string,string,uint8,address)",
+  "function initialized() view returns (bool)",
   "function isGateway(address) view returns (bool)",
   "function mint(address,uint256)",
   "function name() view returns (string)",

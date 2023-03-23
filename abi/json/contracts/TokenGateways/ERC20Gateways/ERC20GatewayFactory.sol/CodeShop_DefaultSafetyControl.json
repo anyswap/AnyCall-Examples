@@ -1,0 +1,15 @@
+[
+  {
+    "inputs": [],
+    "name": "getCode",
+    "outputs": [
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  }
+]

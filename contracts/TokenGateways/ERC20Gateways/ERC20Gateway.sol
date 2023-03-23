@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "../../AnyCallAppBase/AnyCallApp.sol";
+import "./ISwapInSafetyControl.sol";
 
 interface IDecimal {
     function decimals() external view returns (uint8);
@@ -25,6 +26,8 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp {
     address private _initiator;
     bool public initialized = false;
 
+    ISwapInSafetyControl public safetyControl;
+
     constructor() {
         _initiator = msg.sender;
     }
@@ -32,23 +35,25 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp {
     function initERC20Gateway(
         address anyCallProxy,
         address token_,
-        address admin
+        address admin,
+        address _safetyControl
     ) public {
         require(_initiator == msg.sender && !initialized);
         initialized = true;
         token = token_;
         initAnyCallApp(anyCallProxy, admin);
+        safetyControl = ISwapInSafetyControl(_safetyControl);
     }
 
-    function _swapout(uint256 amount, address sender)
-        internal
-        virtual
-        returns (bool);
+    function _swapout(
+        uint256 amount,
+        address sender
+    ) internal virtual returns (bool);
 
-    function _swapin(uint256 amount, address receiver)
-        internal
-        virtual
-        returns (bool);
+    function _swapin(
+        uint256 amount,
+        address receiver
+    ) internal virtual returns (bool);
 
     event LogAnySwapOut(
         uint256 amount,
@@ -58,10 +63,10 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp {
         uint256 swapoutSeq
     );
 
-    function setDecimals(uint256[] memory chainIDs, uint8[] memory decimals_)
-        external
-        onlyAdmin
-    {
+    function setDecimals(
+        uint256[] memory chainIDs,
+        uint8[] memory decimals_
+    ) external onlyAdmin {
         for (uint256 i = 0; i < chainIDs.length; i++) {
             decimals[chainIDs[i]] = decimals_[i];
         }
@@ -75,11 +80,10 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp {
         );
     }
 
-    function convertDecimal(uint256 amount, uint8 d_0)
-        public
-        view
-        returns (uint256)
-    {
+    function convertDecimal(
+        uint256 amount,
+        uint8 d_0
+    ) public view returns (uint256) {
         uint8 d_1 = IDecimal(token).decimals();
         if (d_0 > d_1) {
             for (uint8 i = 0; i < (d_0 - d_1); i++) {
@@ -117,24 +121,29 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp {
         return swapoutSeq;
     }
 
-    function _anyExecute(uint256 fromChainID, bytes memory data)
-        internal
-        override
-        returns (bool success, bytes memory result)
-    {
+    function _anyExecute(
+        uint256 fromChainID,
+        bytes memory data
+    ) internal override returns (bool success, bytes memory result) {
         (uint256 amount, uint8 _decimals, address receiver, ) = abi.decode(
             data,
             (uint256, uint8, address, uint256)
         );
         amount = convertDecimal(amount, _decimals);
+        if (address(safetyControl) != address(0)) {
+            require(
+                safetyControl.checkSwapIn(amount, receiver),
+                "swapin restricted"
+            );
+        }
         success = _swapin(amount, receiver);
+        safetyControl.update(amount, receiver);
     }
 
-    function _anyFallback(uint256 fromChainID, bytes memory data)
-        internal
-        override
-        returns (bool success, bytes memory result)
-    {
+    function _anyFallback(
+        uint256 fromChainID,
+        bytes memory data
+    ) internal override returns (bool success, bytes memory result) {
         (uint256 amount, , address originSender, , ) = abi.decode(
             data,
             (uint256, uint8, address, address, uint256)

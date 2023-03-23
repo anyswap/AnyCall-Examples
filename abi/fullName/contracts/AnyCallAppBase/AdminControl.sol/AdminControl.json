@@ -4,6 +4,5 @@
   "function admin() view returns (address)",
   "function applyAdmin()",
   "function changeAdmin(address _admin)",
-  "function initAdminControl(address _admin)",
   "function pendingAdmin() view returns (address)"
 ]

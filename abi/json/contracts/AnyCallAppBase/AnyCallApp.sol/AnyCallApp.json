@@ -174,19 +174,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_admin",
-        "type": "address"
-      }
-    ],
-    "name": "initAdminControl",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
         "name": "_callProxy",
         "type": "address"
       },

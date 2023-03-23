@@ -6,6 +6,7 @@
     "hardhat-abi-exporter": "^2.10.1"
   },
   "dependencies": {
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
     "@openzeppelin/contracts": "^4.8.1"
   }
 }

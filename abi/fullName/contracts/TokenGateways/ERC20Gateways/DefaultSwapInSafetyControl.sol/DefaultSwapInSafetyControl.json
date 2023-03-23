@@ -1,0 +1,17 @@
+[
+  "constructor()",
+  "function accumulatedAmount() view returns (uint256)",
+  "function blacklist(address) view returns (bool)",
+  "function changeAdmin(address to)",
+  "function checkSwapIn(uint256 amount, address receiver) view returns (bool)",
+  "function initDefaultSafetyControls(address safetyAdmin, address gateway, uint256 _maxSupply, uint256 _maxAmountPerTx, uint256 _maxAmountPerDay)",
+  "function lastSwapInDay() view returns (uint256)",
+  "function maxAmountPerDay() view returns (uint256)",
+  "function maxAmountPerTx() view returns (uint256)",
+  "function maxSupply() view returns (uint256)",
+  "function setBlacklist(address account, bool isBlack)",
+  "function setMaxAmountPerDay(uint256 amount)",
+  "function setMaxAmountPerTx(uint256 amount)",
+  "function setMaxSupply(uint256 amount)",
+  "function update(uint256 amount, address receiver)"
+]

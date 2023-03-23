@@ -28,8 +28,13 @@ async function main() {
     await cs_poolGateway.deployed();
     console.log(`cs_poolGateway : ${cs_poolGateway.address}`);
 
+    let CS_SafetyControl = await ethers.getContractFactory("CodeShop_DefaultSafetyControl");
+    let cs_SafetyControl = await CS_SafetyControl.deploy();
+    await cs_SafetyControl.deployed();
+    console.log(`cs_SafetyControl : ${cs_SafetyControl.address}`);
+
     const BridgeFactory = await ethers.getContractFactory("BridgeFactory");
-    let bridgeFactory = await BridgeFactory.deploy(AnyCallProxy[hre.network.name], [cs_bridgeToken.address, cs_mintBurnGateway.address, cs_poolGateway.address]);
+    let bridgeFactory = await BridgeFactory.deploy(AnyCallProxy[hre.network.name], [cs_bridgeToken.address, cs_mintBurnGateway.address, cs_poolGateway.address, cs_SafetyControl.address]);
     await bridgeFactory.deployed();
     console.log(`bridgeFactory is deployed at ${bridgeFactory.address}`);
 }

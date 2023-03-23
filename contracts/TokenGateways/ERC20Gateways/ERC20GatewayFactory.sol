@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "./BridgeERC20.sol";
 import "./ERC20Gateway_MintBurn.sol";
 import "./ERC20Gateway_Pool.sol";
+import "./DefaultSwapInSafetyControl.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
 interface ICodeShop {
@@ -28,12 +29,19 @@ contract CodeShop_PoolGateway is ICodeShop {
     }
 }
 
+contract CodeShop_DefaultSafetyControl is ICodeShop {
+    function getCode() public pure returns (bytes memory) {
+        return type(DefaultSwapInSafetyControl).creationCode;
+    }
+}
+
 contract BridgeFactory is AccessControl {
     address anyCallProxy;
-    ICodeShop[3] codeShops;
+    ICodeShop[4] codeShops;
 
-    /// @param _codeShops is sort list of CodeShop addresses : `[CS_BridgeToken, CS_MintBurnGateway, CS_PoolGateway]`
+    /// @param _codeShops is sort list of CodeShop addresses : `[CS_BridgeToken, CS_MintBurnGateway, CS_PoolGateway, CodeShop_DefaultSafetyControl]`
     constructor(address _anyCallProxy, address[] memory _codeShops) {
+        require(_codeShops.length == 4);
         anyCallProxy = _anyCallProxy;
         for (uint256 i = 0; i < _codeShops.length; i++) {
             codeShops[i] = ICodeShop(_codeShops[i]);
@@ -42,11 +50,10 @@ contract BridgeFactory is AccessControl {
 
     event Create(string contractType, address contractAddress);
 
-    function getBridgeTokenAddress(address owner, uint256 salt)
-        public
-        view
-        returns (address)
-    {
+    function getBridgeTokenAddress(
+        address owner,
+        uint256 salt
+    ) public view returns (address) {
         bytes memory bytecode = codeShops[0].getCode();
         salt = uint256(keccak256(abi.encodePacked(owner, salt)));
         bytes32 hash = keccak256(
@@ -60,11 +67,10 @@ contract BridgeFactory is AccessControl {
         return address(uint160(uint256(hash)));
     }
 
-    function getPoolGatewayAddress(address owner, uint256 salt)
-        public
-        view
-        returns (address)
-    {
+    function getPoolGatewayAddress(
+        address owner,
+        uint256 salt
+    ) public view returns (address) {
         bytes memory bytecode = codeShops[2].getCode();
         salt = uint256(keccak256(abi.encodePacked(owner, salt)));
         bytes32 hash = keccak256(
@@ -78,11 +84,10 @@ contract BridgeFactory is AccessControl {
         return address(uint160(uint256(hash)));
     }
 
-    function getMintBurnGatewayAddress(address owner, uint256 salt)
-        public
-        view
-        returns (address)
-    {
+    function getMintBurnGatewayAddress(
+        address owner,
+        uint256 salt
+    ) public view returns (address) {
         bytes memory bytecode = codeShops[1].getCode();
         salt = uint256(keccak256(abi.encodePacked(owner, salt)));
         bytes32 hash = keccak256(
@@ -135,19 +140,52 @@ contract BridgeFactory is AccessControl {
         address owner,
         uint256 salt
     ) public returns (address) {
-        address payable addr;
+        address payable gatewayAddr;
         bytes memory bytecode = codeShops[2].getCode();
         salt = uint256(keccak256(abi.encodePacked(owner, salt)));
         assembly {
-            addr := create2(0, add(bytecode, 0x20), mload(bytecode), salt)
+            gatewayAddr := create2(
+                0,
+                add(bytecode, 0x20),
+                mload(bytecode),
+                salt
+            )
 
-            if iszero(extcodesize(addr)) {
+            if iszero(extcodesize(gatewayAddr)) {
                 revert(0, 0)
             }
         }
-        emit Create("ERC20 pool gateway", addr);
-        ERC20Gateway(addr).initERC20Gateway(anyCallProxy, token, owner);
-        return addr;
+        emit Create("ERC20 pool gateway", gatewayAddr);
+        address payable safetyControlAddr;
+        bytes memory safetyControlBytecode = codeShops[3].getCode();
+        salt = uint256(keccak256(abi.encodePacked(gatewayAddr, owner, salt)));
+        assembly {
+            safetyControlAddr := create2(
+                0,
+                add(safetyControlBytecode, 0x20),
+                mload(safetyControlBytecode),
+                salt
+            )
+
+            if iszero(extcodesize(safetyControlAddr)) {
+                revert(0, 0)
+            }
+        }
+        emit Create("Default safety control", safetyControlAddr);
+        ERC20Gateway(gatewayAddr).initERC20Gateway(
+            anyCallProxy,
+            token,
+            owner,
+            safetyControlAddr
+        );
+        DefaultSwapInSafetyControl(safetyControlAddr).initDefaultSafetyControls(
+            owner,
+            gatewayAddr,
+            (1 << 256) - 1,
+            (1 << 256) - 1,
+            (1 << 256) - 1
+        );
+        return gatewayAddr;
     }
 
     function createMintBurnGateway(
@@ -155,19 +193,53 @@ contract BridgeFactory is AccessControl {
         address owner,
         uint256 salt
     ) public returns (address) {
-        address payable addr;
+        address payable gatewayAddr;
         bytes memory bytecode = codeShops[1].getCode();
         salt = uint256(keccak256(abi.encodePacked(owner, salt)));
         assembly {
-            addr := create2(0, add(bytecode, 0x20), mload(bytecode), salt)
+            gatewayAddr := create2(
+                0,
+                add(bytecode, 0x20),
+                mload(bytecode),
+                salt
+            )
 
-            if iszero(extcodesize(addr)) {
+            if iszero(extcodesize(gatewayAddr)) {
                 revert(0, 0)
             }
         }
-        emit Create("ERC20 mint-burn gateway", addr);
-        ERC20Gateway(addr).initERC20Gateway(anyCallProxy, token, owner);
-        return addr;
+        emit Create("ERC20 mint-burn gateway", gatewayAddr);
+        address payable safetyControlAddr;
+        bytes memory safetyControlBytecode = codeShops[3].getCode();
+        salt = uint256(keccak256(abi.encodePacked(gatewayAddr, owner, salt)));
+        assembly {
+            safetyControlAddr := create2(
+                0,
+                add(safetyControlBytecode, 0x20),
+                mload(safetyControlBytecode),
+                salt
+            )
+
+            if iszero(extcodesize(safetyControlAddr)) {
+                revert(0, 0)
+            }
+        }
+        emit Create("Default safety control", safetyControlAddr);
+        ERC20Gateway(gatewayAddr).initERC20Gateway(
+            anyCallProxy,
+            token,
+            owner,
+            safetyControlAddr
+        );
+
+        DefaultSwapInSafetyControl(safetyControlAddr).initDefaultSafetyControls(
+            owner,
+            gatewayAddr,
+            (1 << 256) - 1,
+            (1 << 256) - 1,
+            (1 << 256) - 1
+        );
+        return gatewayAddr;
     }
 
     function createTokenAndMintBurnGateway(

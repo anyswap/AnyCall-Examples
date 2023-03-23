@@ -1,0 +1,4 @@
+[
+  "function Swapout(uint256 tokenId, address receiver, uint256 toChainID) payable returns (uint256 swapoutSeq)",
+  "function token() view returns (address)"
+]

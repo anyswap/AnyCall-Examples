@@ -1,5 +1,6 @@
 const { expect } = require("chai");
 const { keccak256, defaultAbiCoder } = require("ethers/lib/utils");
+const { time } = require("@nomicfoundation/hardhat-network-helpers");
 
 describe("Test bridge factory", function () {
   it("Test bridge factory", async function () {
@@ -27,19 +28,23 @@ describe("Test bridge factory", function () {
     console.log("\ndeploy gateway factory");
     let CS_BridgeToken = await ethers.getContractFactory("CodeShop_BridgeToken");
     let cs_BridgeToken = await CS_BridgeToken.deploy();
-    let CS_MintBurnGateway = await ethers.getContractFactory("CodeShop_MintBurnGateway");
-    let cs_MintBurnGateway = await CS_MintBurnGateway.deploy();
-    let CS_PoolGateway = await ethers.getContractFactory("CodeShop_PoolGateway");
-    let cs_PoolGateway = await CS_PoolGateway.deploy();
     await cs_BridgeToken.deployed();
     console.log(`cs_BridgeToken is deployed at ${cs_BridgeToken.address}`);
+    let CS_MintBurnGateway = await ethers.getContractFactory("CodeShop_MintBurnGateway");
+    let cs_MintBurnGateway = await CS_MintBurnGateway.deploy();
     await cs_MintBurnGateway.deployed();
     console.log(`cs_MintBurnGateway is deployed at ${cs_MintBurnGateway.address}`);
+    let CS_PoolGateway = await ethers.getContractFactory("CodeShop_PoolGateway");
+    let cs_PoolGateway = await CS_PoolGateway.deploy();
     await cs_PoolGateway.deployed();
     console.log(`cs_PoolGateway is deployed at ${cs_PoolGateway.address}`);
+    let CS_SafetyControl = await ethers.getContractFactory("CodeShop_DefaultSafetyControl");
+    let cs_SafetyControl = await CS_SafetyControl.deploy();
+    await cs_SafetyControl.deployed();
+    console.log(`cs_SafetyControl is deployed at ${cs_SafetyControl.address}`);
 
     let BridgeFactory = await ethers.getContractFactory("BridgeFactory");
-    let bridgeFactory = await BridgeFactory.deploy(anyCallProxy.address, [cs_BridgeToken.address, cs_MintBurnGateway.address, cs_PoolGateway.address], { gasLimit: 1200000 });
+    let bridgeFactory = await BridgeFactory.deploy(anyCallProxy.address, [cs_BridgeToken.address, cs_MintBurnGateway.address, cs_PoolGateway.address, cs_SafetyControl.address], { gasLimit: 1500000 });
     await bridgeFactory.deployed();
     console.log(`bridgeFactory : ${bridgeFactory.address}`);
 
@@ -159,6 +164,39 @@ describe("Test bridge factory", function () {
     await expect(
       anycallExecutor.executeMock(poolGateway.address, data, owner.address, hre.network.config.chainId, 0)
     ).to.be.revertedWith('AppBase: wrong context');
+
+    console.log("\n test safety control");
+    let safeControl = await ethers.getContractAt("DefaultSwapInSafetyControl", await mintburnGateway.safetyControl());
+    console.log(`safety control for pool gateway : ${safeControl.address}`);
+    // test max supply control
+    safeControl.setMaxSupply(1);
+    // data : swapin 1000 to owner.address
+    await expect(
+      anycallExecutor.executeMock(mintburnGateway.address, data, poolGateway.address, hre.network.config.chainId, 0)
+    ).to.be.revertedWith('swapin restricted');
+    safeControl.setMaxSupply(1000000000000000000000000000n); // 1000000000
+    await anycallExecutor.executeMock(mintburnGateway.address, data, poolGateway.address, hre.network.config.chainId, 0);
+
+    // test max tx amount control
+    safeControl.setMaxAmountPerTx(500000000000000000000n); // 500
+    await expect(
+      anycallExecutor.executeMock(mintburnGateway.address, data, poolGateway.address, hre.network.config.chainId, 0)
+    ).to.be.revertedWith('swapin restricted');
+    safeControl.setMaxAmountPerTx(100000000000000000000000n); // 100000
+    await anycallExecutor.executeMock(mintburnGateway.address, data, poolGateway.address, hre.network.config.chainId, 0);
+
+    // test max daily amount control
+    let accumulatedAmount = await safeControl.accumulatedAmount();
+    console.log(`accumulatedAmount : ${accumulatedAmount}`); // 3000
+    safeControl.setMaxAmountPerDay(3000000000000000000000n); // 3000
+    await expect(
+      anycallExecutor.executeMock(mintburnGateway.address, data, poolGateway.address, hre.network.config.chainId, 0)
+    ).to.be.revertedWith('swapin restricted');
+    await time.increase(3600 * 24 + 1); // 1 day and 1 second
+    await anycallExecutor.executeMock(mintburnGateway.address, data, poolGateway.address, hre.network.config.chainId, 0);
+    let accumulatedAmount2 = await safeControl.accumulatedAmount();
+    console.log(`accumulatedAmount2 : ${accumulatedAmount2}`); // 1000
+    expect(accumulatedAmount2).to.equal(1000000000000000000000n);
   })
   it("Test nft bridge", async function () {
     const [owner, user1] = await ethers.getSigners();
