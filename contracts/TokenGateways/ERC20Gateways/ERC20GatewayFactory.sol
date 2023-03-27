@@ -140,7 +140,7 @@ contract BridgeFactory is AccessControl {
         address token,
         address owner,
         uint256 salt
-    ) public returns (address) {
+    ) public returns (address, address) {
         address payable gatewayAddr;
         bytes memory bytecode = codeShops[2].getCode();
         salt = uint256(keccak256(abi.encodePacked(owner, salt)));
@@ -188,14 +188,14 @@ contract BridgeFactory is AccessControl {
             (1 << 256) - 1,
             (1 << 256) - 1
         );
-        return gatewayAddr;
+        return (gatewayAddr, safetyControlAddr);
     }
 
     function createMintBurnGateway(
         address token,
         address owner,
         uint256 salt
-    ) public returns (address) {
+    ) public returns (address, address) {
         address payable gatewayAddr;
         bytes memory bytecode = codeShops[1].getCode();
         salt = uint256(keccak256(abi.encodePacked(owner, salt)));
@@ -243,7 +243,7 @@ contract BridgeFactory is AccessControl {
             (1 << 256) - 1,
             (1 << 256) - 1
         );
-        return gatewayAddr;
+        return (gatewayAddr, safetyControlAddr);
     }
 
     function createTokenAndMintBurnGateway(
@@ -252,7 +252,7 @@ contract BridgeFactory is AccessControl {
         uint8 decimals_,
         address owner,
         uint256 salt
-    ) public returns (address, address) {
+    ) public returns (address, address, address) {
         address token = _createBridgeToken(
             name_,
             symbol_,
@@ -261,9 +261,13 @@ contract BridgeFactory is AccessControl {
             salt,
             address(this)
         );
-        address gateway = createMintBurnGateway(token, owner, salt);
+        (address gateway, address safetyControl) = createMintBurnGateway(
+            token,
+            owner,
+            salt
+        );
         BridgeERC20(token).setGateway(gateway);
         BridgeERC20(token).transferAdmin(owner);
-        return (token, gateway);
+        return (token, gateway, safetyControl);
     }
 }
