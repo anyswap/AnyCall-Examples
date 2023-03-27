@@ -34,7 +34,7 @@ async function main() {
     console.log(`cs_SafetyControl : ${cs_SafetyControl.address}`);
 
     const BridgeFactory = await ethers.getContractFactory("BridgeFactory");
-    let bridgeFactory = await BridgeFactory.deploy(AnyCallProxy[hre.network.name], [cs_bridgeToken.address, cs_mintBurnGateway.address, cs_poolGateway.address, cs_SafetyControl.address]);
+    let bridgeFactory = await BridgeFactory.deploy(AnyCallProxy[hre.network.name], [cs_bridgeToken.address, cs_mintBurnGateway.address, cs_poolGateway.address, cs_SafetyControl.address], deployer.address);
     await bridgeFactory.deployed();
     console.log(`bridgeFactory is deployed at ${bridgeFactory.address}`);
 }

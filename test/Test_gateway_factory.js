@@ -44,7 +44,7 @@ describe("Test bridge factory", function () {
     console.log(`cs_SafetyControl is deployed at ${cs_SafetyControl.address}`);
 
     let BridgeFactory = await ethers.getContractFactory("BridgeFactory");
-    let bridgeFactory = await BridgeFactory.deploy(anyCallProxy.address, [cs_BridgeToken.address, cs_MintBurnGateway.address, cs_PoolGateway.address, cs_SafetyControl.address], { gasLimit: 1500000 });
+    let bridgeFactory = await BridgeFactory.deploy(anyCallProxy.address, [cs_BridgeToken.address, cs_MintBurnGateway.address, cs_PoolGateway.address, cs_SafetyControl.address], owner.address, { gasLimit: 1500000 });
     await bridgeFactory.deployed();
     console.log(`bridgeFactory : ${bridgeFactory.address}`);
 

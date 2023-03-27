@@ -41,12 +41,17 @@ contract BridgeFactory is AccessControl {
     address public dfaxFeeAdmin;
 
     /// @param _codeShops is sort list of CodeShop addresses : `[CS_BridgeToken, CS_MintBurnGateway, CS_PoolGateway, CodeShop_DefaultSafetyControl]`
-    constructor(address _anyCallProxy, address[] memory _codeShops) {
+    constructor(
+        address _anyCallProxy,
+        address[] memory _codeShops,
+        address _dfaxFeeAdmin
+    ) {
         require(_codeShops.length == 4);
         anyCallProxy = _anyCallProxy;
         for (uint256 i = 0; i < _codeShops.length; i++) {
             codeShops[i] = ICodeShop(_codeShops[i]);
         }
+        dfaxFeeAdmin = _dfaxFeeAdmin;
     }
 
     event Create(string contractType, address contractAddress);
