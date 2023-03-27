@@ -18,6 +18,7 @@ contract DefaultSwapInSafetyControl is ISwapInSafetyControl {
     uint256 public maxAmountPerDay;
     uint256 public lastSwapInDay;
     uint256 public accumulatedAmount;
+    bool public initialized;
 
     constructor() {}
 
@@ -28,11 +29,13 @@ contract DefaultSwapInSafetyControl is ISwapInSafetyControl {
         uint _maxAmountPerTx,
         uint _maxAmountPerDay
     ) public {
+        require(!initialized);
         initSafetyControl(safetyAdmin, gateway);
         maxSupply = _maxSupply;
         maxAmountPerTx = _maxAmountPerTx;
         maxAmountPerDay = _maxAmountPerDay;
         lastSwapInDay = block.timestamp / 1 days;
+        initialized = true;
     }
 
     function checkSwapIn(

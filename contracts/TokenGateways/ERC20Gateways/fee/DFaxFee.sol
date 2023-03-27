@@ -83,7 +83,7 @@ contract DFaxFee {
         }
     }
 
-    function removeFeeOwner(address feeOwner) public {
+    function removeFeeOwner(address feeOwner) public onlyDFaxFeeAdmin {
         _updateFeeOwner(feeOwner, 0);
     }
 
@@ -109,9 +109,7 @@ contract DFaxFee {
             totalWeight += feeOwnerWeights[i];
         }
         for (uint i = 0; i < feeOwners.length; i++) {
-            feeOwnerAccrued[i] +=
-                (msg.value * feeOwnerWeights[i]) /
-                totalWeight;
+            feeOwnerAccrued[i] += (fee * feeOwnerWeights[i]) / totalWeight;
         }
 
         return fee;
