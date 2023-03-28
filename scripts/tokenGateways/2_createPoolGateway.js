@@ -1,12 +1,13 @@
 const hre = require("hardhat");
 
-const token = "0x8C68ad9e912cE8E86D7c95DBAc90E4c79d8c017E";
+const token = "0x5425890298aed601595a70ab815c96711a31bc65";
 
 const factory = {
-    "bscTestnet": "0xB071D067dc09a0550786c69080919dCc24704Efd",
-    "goerli": "0xB071D067dc09a0550786c69080919dCc24704Efd",
-    "ftmTestnet": "0xB071D067dc09a0550786c69080919dCc24704Efd",
-    "fuji": "0xB071D067dc09a0550786c69080919dCc24704Efd"
+    "bscTestnet": "0x69383b872E99A7155C0841C8b1Af1058406cb246",
+    "goerli": "0x69383b872E99A7155C0841C8b1Af1058406cb246",
+    "ftmTestnet": "0x69383b872E99A7155C0841C8b1Af1058406cb246",
+    "fuji": "0x69383b872E99A7155C0841C8b1Af1058406cb246",
+    "moonbase": "0x69383b872E99A7155C0841C8b1Af1058406cb246"
 }
 
 const salt = 1;

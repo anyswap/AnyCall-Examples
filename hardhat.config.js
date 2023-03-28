@@ -34,6 +34,10 @@ module.exports = {
     fuji: {
       url: process.env.AVAXTESTNET_RPC_PROVIDER,
       accounts: [process.env.PRIVATE_KEY]
+    },
+    moonbase: {
+      url: process.env.MOONBASE_RPC_PROVIDER,
+      accounts: [process.env.PRIVATE_KEY]
     }
   },
   etherscan: {

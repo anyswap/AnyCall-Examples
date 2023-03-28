@@ -2,23 +2,29 @@ const hre = require("hardhat");
 
 const gatewayNetwork = {
     "bscTestnet": {
-        "token": "0x8C68ad9e912cE8E86D7c95DBAc90E4c79d8c017E",
-        "gateway": "0xe2927dbabfdDeAB984CF2dd1ce14346E5c590F14"
+        "token": "0x64544969ed7EBf5f083679233325356EbE738930",
+        "gateway": "0xb57b236921da1a6511a74a526611cd5eff4810a0"
     },
     "goerli": {
-        "token": "0x8C68ad9e912cE8E86D7c95DBAc90E4c79d8c017E",
-        "gateway": "0xC839DDd78F4E31227fF3FeebBcdBDd08f59727c4"
+        "token": "0x07865c6e87b9f70255377e024ace6630c1eaa37f",
+        "gateway": "0xb57b236921da1a6511a74a526611cd5eff4810a0"
     },
-    "ftmTestnet": {
-        "token": "0x8C68ad9e912cE8E86D7c95DBAc90E4c79d8c017E",
-        "gateway": "0xe2927dbabfdDeAB984CF2dd1ce14346E5c590F14"
+    "moonbase": {
+        "token": "0xfffffffe47b78475160da680caef70959e027bee",
+        "gateway": "0x37BdC2A41837467d6C5Af9Fd69B7ED2A4B401762"
+    },
+    "fuji": {
+        "token": "0x5425890298aed601595a70ab815c96711a31bc65",
+        "gateway": "0xb57b236921da1a6511a74a526611cd5eff4810a0"
     }
 }
 
 const chainids = {
+    "fuji": 43113,
     "bscTestnet": 97,
-    "ftmTestnet": 4002,
-    "goerli": 5
+    //"ftmTestnet": 4002,
+    "goerli": 5,
+    "moonbase": 1287
 }
 
 async function main() {

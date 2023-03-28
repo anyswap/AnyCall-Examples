@@ -13,6 +13,7 @@ abstract contract ISwapInSafetyControl {
         gateway = _gateway;
     }
 
+    // TODO: add param fromChainID
     function checkSwapIn(
         uint256 amount,
         address receiver

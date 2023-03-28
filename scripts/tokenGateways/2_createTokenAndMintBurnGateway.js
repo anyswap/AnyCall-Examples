@@ -5,10 +5,11 @@ const hre = require("hardhat");
  */
 
 const factory = {
-    "bscTestnet": "0xB071D067dc09a0550786c69080919dCc24704Efd",
-    "goerli": "0xB071D067dc09a0550786c69080919dCc24704Efd",
-    "ftmTestnet": "0xB071D067dc09a0550786c69080919dCc24704Efd",
-    "fuji": "0xB071D067dc09a0550786c69080919dCc24704Efd"
+    "bscTestnet": "0x69383b872E99A7155C0841C8b1Af1058406cb246",
+    "goerli": "0x69383b872E99A7155C0841C8b1Af1058406cb246",
+    "ftmTestnet": "0x69383b872E99A7155C0841C8b1Af1058406cb246",
+    "fuji": "0x69383b872E99A7155C0841C8b1Af1058406cb246",
+    "moonbase": "0x69383b872E99A7155C0841C8b1Af1058406cb246"
 }
 
 const tokenInfo = {
