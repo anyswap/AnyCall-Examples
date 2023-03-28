@@ -39,6 +39,7 @@ contract DefaultSwapInSafetyControl is ISwapInSafetyControl {
     }
 
     function checkSwapIn(
+        uint256 fromChainID,
         uint256 amount,
         address receiver
     ) public view virtual override returns (bool) {
@@ -64,6 +65,7 @@ contract DefaultSwapInSafetyControl is ISwapInSafetyControl {
     }
 
     function _update(
+        uint256 fromChainID,
         uint256 amount,
         address receiver
     ) internal virtual override {

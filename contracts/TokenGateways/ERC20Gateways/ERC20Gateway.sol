@@ -138,13 +138,12 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp, DFaxFee {
         amount = convertDecimal(amount, _decimals);
         if (address(safetyControl) != address(0)) {
             require(
-                // TODO: pass fromChainID to checkSwapIn
-                safetyControl.checkSwapIn(amount, receiver),
+                safetyControl.checkSwapIn(fromChainID, amount, receiver),
                 "swapin restricted"
             );
         }
         success = _swapin(amount, receiver);
-        safetyControl.update(amount, receiver);
+        safetyControl.update(fromChainID, amount, receiver);
     }
 
     function _anyFallback(

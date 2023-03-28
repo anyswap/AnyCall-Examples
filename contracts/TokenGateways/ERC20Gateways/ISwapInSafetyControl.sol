@@ -13,18 +13,26 @@ abstract contract ISwapInSafetyControl {
         gateway = _gateway;
     }
 
-    // TODO: add param fromChainID
     function checkSwapIn(
+        uint256 fromChainID,
         uint256 amount,
         address receiver
     ) public view virtual returns (bool);
 
-    function update(uint256 amount, address receiver) public {
+    function update(
+        uint256 fromChainID,
+        uint256 amount,
+        address receiver
+    ) public {
         require(msg.sender == gateway);
-        _update(amount, receiver);
+        _update(fromChainID, amount, receiver);
     }
 
-    function _update(uint256 amount, address receiver) internal virtual;
+    function _update(
+        uint256 fromChainID,
+        uint256 amount,
+        address receiver
+    ) internal virtual;
 
     function setSafetyAdmin(address _admin) internal virtual {
         safetyAdmin = _admin;
