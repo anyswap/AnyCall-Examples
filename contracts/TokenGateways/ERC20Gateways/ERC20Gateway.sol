@@ -101,6 +101,10 @@ abstract contract ERC20Gateway is IERC20Gateway, AnyCallApp, DFaxFee {
         return amount;
     }
 
+    function setSatetyControl(address newSafetyControl) external onlyAdmin {
+        safetyControl = ISwapInSafetyControl(newSafetyControl);
+    }
+
     function Swapout(
         uint256 amount,
         address receiver,
