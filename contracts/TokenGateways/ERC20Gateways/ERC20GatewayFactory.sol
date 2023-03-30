@@ -196,6 +196,62 @@ contract BridgeFactory is AccessControl {
         return (gatewayAddr, safetyControlAddr);
     }
 
+    function createWNativePoolGateway(
+        address token,
+        address owner,
+        uint256 salt
+    ) public returns (address, address) {
+        address payable gatewayAddr;
+        bytes memory bytecode = codeShops[2].getCode();
+        salt = uint256(keccak256(abi.encodePacked(owner, salt)));
+        assembly {
+            gatewayAddr := create2(
+                0,
+                add(bytecode, 0x20),
+                mload(bytecode),
+                salt
+            )
+
+            if iszero(extcodesize(gatewayAddr)) {
+                revert(0, 0)
+            }
+        }
+        emit Create("ERC20 pool gateway", gatewayAddr);
+        address payable safetyControlAddr;
+        bytes memory safetyControlBytecode = codeShops[3].getCode();
+        salt = uint256(keccak256(abi.encodePacked(gatewayAddr, owner, salt)));
+        assembly {
+            safetyControlAddr := create2(
+                0,
+                add(safetyControlBytecode, 0x20),
+                mload(safetyControlBytecode),
+                salt
+            )
+
+            if iszero(extcodesize(safetyControlAddr)) {
+                revert(0, 0)
+            }
+        }
+        emit Create("Default safety control", safetyControlAddr);
+        ERC20Gateway_Pool(gatewayAddr).initIsWNative(true);
+        ERC20Gateway(gatewayAddr).initERC20Gateway(
+            anyCallProxy,
+            token,
+            owner,
+            safetyControlAddr,
+            dfaxFeeAdmin,
+            address(0)
+        );
+        DefaultSwapInSafetyControl(safetyControlAddr).initDefaultSafetyControls(
+            owner,
+            gatewayAddr,
+            (1 << 256) - 1,
+            (1 << 256) - 1,
+            (1 << 256) - 1
+        );
+        return (gatewayAddr, safetyControlAddr);
+    }
+
     function createMintBurnGateway(
         address token,
         address owner,
